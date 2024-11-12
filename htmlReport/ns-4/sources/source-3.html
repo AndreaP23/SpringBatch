@@ -1,0 +1,167 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VeicoloMapperImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.si2001.batch_rentalcar.mapper</a>
+</div>
+
+<h1>Coverage Summary for Class: VeicoloMapperImpl (org.si2001.batch_rentalcar.mapper)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">VeicoloMapperImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (1/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    4.8%
+  </span>
+  <span class="absValue">
+    (1/21)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.si2001.batch_rentalcar.mapper;
+&nbsp;
+&nbsp;import javax.annotation.processing.Generated;
+&nbsp;import org.example.entities.Veicolo;
+&nbsp;import org.si2001.batch_rentalcar.dto.VeicoloDTO;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;@Generated(
+&nbsp;    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+&nbsp;    date = &quot;2024-11-09T12:17:50+0100&quot;,
+&nbsp;    comments = &quot;version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)&quot;
+&nbsp;)
+&nbsp;@Component
+<b class="fc">&nbsp;public class VeicoloMapperImpl implements VeicoloMapper {</b>
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public VeicoloDTO toDTO(Veicolo veicolo) {
+<b class="nc">&nbsp;        if ( veicolo == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        VeicoloDTO.VeicoloDTOBuilder veicoloDTO = VeicoloDTO.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        veicoloDTO.veicoloId( veicolo.getVeicoloId() );</b>
+<b class="nc">&nbsp;        veicoloDTO.marca( veicolo.getMarca() );</b>
+<b class="nc">&nbsp;        veicoloDTO.modello( veicolo.getModello() );</b>
+<b class="nc">&nbsp;        veicoloDTO.anno( veicolo.getAnno() );</b>
+<b class="nc">&nbsp;        veicoloDTO.targa( veicolo.getTarga() );</b>
+<b class="nc">&nbsp;        veicoloDTO.disponibilita( veicolo.getDisponibilita() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return veicoloDTO.build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Veicolo toEntity(VeicoloDTO veicoloDTO) {
+<b class="nc">&nbsp;        if ( veicoloDTO == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Veicolo.VeicoloBuilder veicolo = Veicolo.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        veicolo.veicoloId( veicoloDTO.getVeicoloId() );</b>
+<b class="nc">&nbsp;        veicolo.marca( veicoloDTO.getMarca() );</b>
+<b class="nc">&nbsp;        veicolo.modello( veicoloDTO.getModello() );</b>
+<b class="nc">&nbsp;        veicolo.anno( veicoloDTO.getAnno() );</b>
+<b class="nc">&nbsp;        veicolo.targa( veicoloDTO.getTarga() );</b>
+<b class="nc">&nbsp;        veicolo.disponibilita( veicoloDTO.getDisponibilita() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return veicolo.build();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-11 09:20</div>
+</div>
+</body>
+</html>

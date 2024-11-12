@@ -1,0 +1,262 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BatchRentalcarApplication</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.si2001.batch_rentalcar</a>
+</div>
+
+<h1>Coverage Summary for Class: BatchRentalcarApplication (org.si2001.batch_rentalcar)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BatchRentalcarApplication</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.1%
+  </span>
+  <span class="absValue">
+    (4/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (2/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25.5%
+  </span>
+  <span class="absValue">
+    (12/47)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">BatchRentalcarApplication$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    57.1%
+  </span>
+  <span class="absValue">
+    (4/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (2/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25.5%
+  </span>
+  <span class="absValue">
+    (12/47)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.si2001.batch_rentalcar;
+&nbsp;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import lombok.val;
+&nbsp;import org.springframework.batch.core.Job;
+&nbsp;import org.springframework.batch.core.JobParametersBuilder;
+&nbsp;import org.springframework.batch.core.launch.JobLauncher;
+&nbsp;import org.springframework.boot.SpringApplication;
+&nbsp;import org.springframework.boot.WebApplicationType;
+&nbsp;import org.springframework.boot.autoconfigure.SpringBootApplication;
+&nbsp;import org.springframework.boot.autoconfigure.domain.EntityScan;
+&nbsp;import org.springframework.boot.builder.SpringApplicationBuilder;
+&nbsp;import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+&nbsp;import org.springframework.scheduling.annotation.EnableScheduling;
+&nbsp;import org.springframework.scheduling.annotation.Scheduled;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.nio.file.*;
+&nbsp;
+&nbsp;@SpringBootApplication(scanBasePackages = {&quot;org.si2001.batch_rentalcar&quot;, &quot;org.example&quot;})
+&nbsp;@EnableJpaRepositories(basePackages = &quot;org.example.dao&quot;)
+&nbsp;@EntityScan(basePackages = {&quot;org.example.entities&quot;})
+&nbsp;@EnableScheduling
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;public class BatchRentalcarApplication {
+&nbsp;
+&nbsp;    private final JobLauncher jobLauncher;
+&nbsp;    private final Job job;
+&nbsp;    private WatchService watchService;
+&nbsp;
+<b class="fc">&nbsp;    public BatchRentalcarApplication(JobLauncher jobLauncher, Job job) {</b>
+<b class="fc">&nbsp;        this.jobLauncher = jobLauncher;</b>
+<b class="fc">&nbsp;        this.job = job;</b>
+<b class="fc">&nbsp;        initializeWatchService();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void main(String[] args) {
+<b class="nc">&nbsp;        new SpringApplicationBuilder(BatchRentalcarApplication.class)</b>
+<b class="nc">&nbsp;                .web(WebApplicationType.SERVLET)</b>
+<b class="nc">&nbsp;                .run(args);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Inizializza il WatchService per il monitoraggio della cartella.
+&nbsp;     */
+&nbsp;    private void initializeWatchService() {
+<b class="fc">&nbsp;        val path = Paths.get(&quot;C:/Users/SI2001/eclipse-workspace/rentalbatch/src/main/resources/input&quot;);</b>
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            this.watchService = FileSystems.getDefault().newWatchService();</b>
+<b class="fc">&nbsp;            path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);</b>
+<b class="fc">&nbsp;            log.info(&quot;WatchService inizializzato e registrato sulla cartella: {}&quot;, path);</b>
+<b class="nc">&nbsp;        } catch (IOException e) {</b>
+<b class="nc">&nbsp;            log.error(&quot;Errore durante l&#39;inizializzazione del WatchService&quot;, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Metodo per eseguire il job batch sui file CSV già presenti nella cartella all&#39;avvio.
+&nbsp;     */
+&nbsp;    @Scheduled(initialDelay = 2000, fixedRate = Long.MAX_VALUE)
+&nbsp;    public void runBatchOnExistingFiles() {
+<b class="nc">&nbsp;        val path = Paths.get(&quot;C:/Users/SI2001/eclipse-workspace/rentalbatch/src/main/resources/input&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        try (DirectoryStream&lt;Path&gt; stream = Files.newDirectoryStream(path, &quot;*.csv&quot;)) {</b>
+<b class="nc">&nbsp;            for (Path entry : stream) {</b>
+<b class="nc">&nbsp;                log.info(&quot;Trovato file esistente: {}&quot;, entry.getFileName());</b>
+<b class="nc">&nbsp;                run(entry.toAbsolutePath().toString());</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } catch (IOException e) {</b>
+<b class="nc">&nbsp;            log.error(&quot;Errore durante il controllo della cartella per file esistenti: {}&quot;, path, e);</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            log.error(&quot;Errore durante l&#39;esecuzione del job batch per il file esistente&quot;, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Metodo pianificato per controllare nuovi eventi nella cartella ogni 5 secondi.
+&nbsp;     */
+&nbsp;    @Scheduled(fixedRate = 5000)
+&nbsp;    public void pollDirectory() {
+<b class="pc">&nbsp;        if (watchService == null) {</b>
+<b class="nc">&nbsp;            log.warn(&quot;WatchService non è stato inizializzato correttamente.&quot;);</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        WatchKey key = watchService.poll();</b>
+<b class="pc">&nbsp;        if (key != null) {</b>
+<b class="nc">&nbsp;            for (WatchEvent&lt;?&gt; event : key.pollEvents()) {</b>
+<b class="nc">&nbsp;                if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {</b>
+<b class="nc">&nbsp;                    String inputFile = Paths.get(&quot;C:/Users/SI2001/eclipse-workspace/rentalbatch/src/main/resources/input&quot;)</b>
+<b class="nc">&nbsp;                            .resolve(event.context().toString()).toString();</b>
+<b class="nc">&nbsp;                    log.info(&quot;Nuovo file rilevato: {}&quot;, inputFile);</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        run(inputFile);</b>
+<b class="nc">&nbsp;                    } catch (Exception e) {</b>
+<b class="nc">&nbsp;                        log.error(&quot;Errore durante l&#39;esecuzione del job batch per il file: {}&quot;, inputFile, e);</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            key.reset();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Esegue il job batch sul file specificato come input.
+&nbsp;     */
+&nbsp;    public void run(final String inputFile) throws Exception {
+<b class="nc">&nbsp;        val jobParameters = new JobParametersBuilder()</b>
+<b class="nc">&nbsp;                .addDate(&quot;timestamp&quot;, java.util.Calendar.getInstance().getTime())</b>
+<b class="nc">&nbsp;                .addString(&quot;inputFile&quot;, inputFile)</b>
+<b class="nc">&nbsp;                .toJobParameters();</b>
+&nbsp;
+<b class="nc">&nbsp;        log.info(&quot;Avvio del job batch per il file: {}&quot;, inputFile);</b>
+<b class="nc">&nbsp;        log.info(&quot;Job parameters: {}&quot;, jobParameters);</b>
+<b class="nc">&nbsp;        val jobExecution = jobLauncher.run(job, jobParameters);</b>
+&nbsp;
+<b class="nc">&nbsp;        while (jobExecution.isRunning()) {</b>
+<b class="nc">&nbsp;            log.info(&quot;Il job batch è in esecuzione...&quot;);</b>
+<b class="nc">&nbsp;            Thread.sleep(1000);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        log.info(&quot;Job completato con stato: {}&quot;, jobExecution.getStatus());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-11 09:20</div>
+</div>
+</body>
+</html>

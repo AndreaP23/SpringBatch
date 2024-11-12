@@ -1,0 +1,223 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PrenotazioneMapperImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.si2001.batch_rentalcar.mapper</a>
+</div>
+
+<h1>Coverage Summary for Class: PrenotazioneMapperImpl (org.si2001.batch_rentalcar.mapper)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PrenotazioneMapperImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    14.3%
+  </span>
+  <span class="absValue">
+    (1/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    2%
+  </span>
+  <span class="absValue">
+    (1/49)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.si2001.batch_rentalcar.mapper;
+&nbsp;
+&nbsp;import javax.annotation.processing.Generated;
+&nbsp;import org.example.entities.Prenotazione;
+&nbsp;import org.example.entities.User;
+&nbsp;import org.example.entities.Veicolo;
+&nbsp;import org.si2001.batch_rentalcar.dto.PrenotazioneDTO;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;@Generated(
+&nbsp;    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+&nbsp;    date = &quot;2024-11-09T12:17:50+0100&quot;,
+&nbsp;    comments = &quot;version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)&quot;
+&nbsp;)
+&nbsp;@Component
+<b class="fc">&nbsp;public class PrenotazioneMapperImpl implements PrenotazioneMapper {</b>
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public PrenotazioneDTO toDTO(Prenotazione prenotazione) {
+<b class="nc">&nbsp;        if ( prenotazione == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        PrenotazioneDTO.PrenotazioneDTOBuilder prenotazioneDTO = PrenotazioneDTO.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        prenotazioneDTO.userId( prenotazioneUserUserId( prenotazione ) );</b>
+<b class="nc">&nbsp;        prenotazioneDTO.veicoloId( prenotazioneVeicoloVeicoloId( prenotazione ) );</b>
+<b class="nc">&nbsp;        prenotazioneDTO.dataPrenotazione( prenotazione.getDataPrenotazione() );</b>
+<b class="nc">&nbsp;        prenotazioneDTO.dataInizio( prenotazione.getDataInizio() );</b>
+<b class="nc">&nbsp;        prenotazioneDTO.dataFine( prenotazione.getDataFine() );</b>
+<b class="nc">&nbsp;        prenotazioneDTO.note( prenotazione.getNote() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return prenotazioneDTO.build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Prenotazione toEntity(PrenotazioneDTO prenotazioneDTO) {
+<b class="nc">&nbsp;        if ( prenotazioneDTO == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Prenotazione.PrenotazioneBuilder prenotazione = Prenotazione.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        prenotazione.user( prenotazioneDTOToUser( prenotazioneDTO ) );</b>
+<b class="nc">&nbsp;        prenotazione.veicolo( prenotazioneDTOToVeicolo( prenotazioneDTO ) );</b>
+<b class="nc">&nbsp;        prenotazione.dataPrenotazione( prenotazioneDTO.getDataPrenotazione() );</b>
+<b class="nc">&nbsp;        prenotazione.dataInizio( prenotazioneDTO.getDataInizio() );</b>
+<b class="nc">&nbsp;        prenotazione.dataFine( prenotazioneDTO.getDataFine() );</b>
+<b class="nc">&nbsp;        prenotazione.note( prenotazioneDTO.getNote() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return prenotazione.build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Long prenotazioneUserUserId(Prenotazione prenotazione) {
+<b class="nc">&nbsp;        if ( prenotazione == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        User user = prenotazione.getUser();</b>
+<b class="nc">&nbsp;        if ( user == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Long userId = user.getUserId();</b>
+<b class="nc">&nbsp;        if ( userId == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return userId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Long prenotazioneVeicoloVeicoloId(Prenotazione prenotazione) {
+<b class="nc">&nbsp;        if ( prenotazione == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Veicolo veicolo = prenotazione.getVeicolo();</b>
+<b class="nc">&nbsp;        if ( veicolo == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Long veicoloId = veicolo.getVeicoloId();</b>
+<b class="nc">&nbsp;        if ( veicoloId == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return veicoloId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    protected User prenotazioneDTOToUser(PrenotazioneDTO prenotazioneDTO) {
+<b class="nc">&nbsp;        if ( prenotazioneDTO == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        User.UserBuilder user = User.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        user.userId( prenotazioneDTO.getUserId() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return user.build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    protected Veicolo prenotazioneDTOToVeicolo(PrenotazioneDTO prenotazioneDTO) {
+<b class="nc">&nbsp;        if ( prenotazioneDTO == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Veicolo.VeicoloBuilder veicolo = Veicolo.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        veicolo.veicoloId( prenotazioneDTO.getVeicoloId() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return veicolo.build();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-11 09:20</div>
+</div>
+</body>
+</html>

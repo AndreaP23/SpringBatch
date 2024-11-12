@@ -1,0 +1,4 @@
+ID,UserID,VeicoloID,DataPrenotazione,DataInizio,DataFine,Note
+2,1,10,2024-11-11,2024-11-12,2024-11-13,Prenotazione effettuata oggi
+3,2,8,2024-11-11,2024-11-12,2024-11-13,Prenotazione effettuata oggi
+6,3,2,2024-11-11,2024-11-12,2024-11-13,Prenotazione effettuata oggi 3
