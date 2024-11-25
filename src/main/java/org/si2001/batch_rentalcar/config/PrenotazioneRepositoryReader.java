@@ -6,33 +6,32 @@ import org.example.entities.Prenotazione;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Configuration
-public class RepositoryItemReaderConfig {
+public class PrenotazioneRepositoryReader {
 
-    /**
-     * Configura un RepositoryItemReader per leggere le prenotazioni dal database.
-     */
-    @Bean
-    @Transactional(readOnly = true) // Garantisce la lettura dei dati senza modifica
+    @Bean(name = "repositoryPrenotazioniItemReader")
+    @Scope(value = "step", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public RepositoryItemReader<Prenotazione> repositoryItemReader(PrenotazioneRepository prenotazioneRepository) {
         RepositoryItemReader<Prenotazione> reader = new RepositoryItemReader<>();
         reader.setRepository(prenotazioneRepository);
-        reader.setMethodName("findAllByToday"); // Metodo personalizzato nella repository
+        reader.setMethodName("findAllByToday");
         reader.setPageSize(10);
 
-        // Configura l'ordinamento
+        // Specifica l'ordinamento esplicito per il Reader
         Map<String, Sort.Direction> sortMap = new HashMap<>();
-        sortMap.put("prenotazioneId", Sort.Direction.ASC); // Ordine crescente per prenotazioneId
+        sortMap.put("prenotazioneId", Sort.Direction.ASC); // Ordina per prenotazioneId in ordine crescente
         reader.setSort(sortMap);
 
-        log.info("RepositoryItemReader configurato correttamente.");
+
+        log.info("RepositoryItemReader configurato per leggere le prenotazioni di oggi dal database con ordinamento.");
         return reader;
     }
 }

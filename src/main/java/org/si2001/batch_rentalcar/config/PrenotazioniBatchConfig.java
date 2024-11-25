@@ -16,31 +16,48 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 
 @Slf4j
 @Configuration
 @EnableBatchProcessing
 public class PrenotazioniBatchConfig {
 
-    private static final String OUTPUT_DIRECTORY = "src/main/resources/output";
-    private static final String OUTPUT_FILE = OUTPUT_DIRECTORY + "/prenotazioniscaricate.csv";
+    @Value("${prenotazione.export.path}")
+    private String exportFilePath;
 
     @Autowired
-    private PrenotazioneExportConfig prenotazioneExportConfig;
+    @Qualifier("flatFileItemReader")
+    private FlatFileItemReader<PrenotazioneDTO> prenotazioneItemReader;
+
+    @Autowired
+    @Qualifier("repositoryPrenotazioniItemReader")
+    private RepositoryItemReader<Prenotazione> prenotazioneRepositoryReader;
+
+    @Autowired
+    private ItemProcessor<PrenotazioneDTO, Prenotazione> importPrenotazioneProcessor;
+
+    @Autowired
+    @Qualifier("prenotazioneCsvWriter")
+    private ItemWriter<Prenotazione> prenotazioneCsvWriter;
+
+
+    @Autowired
+    private ItemProcessor<Prenotazione, Prenotazione> repositoryItemProcessor;
 
     /**
      * Job per l'importazione delle prenotazioni dal CSV.
@@ -51,11 +68,14 @@ public class PrenotazioniBatchConfig {
                                      PrenotazioneRepository prenotazioneRepository,
                                      PrenotazioneMapper prenotazioneMapper,
                                      UserRepository userRepository,
-                                     VeicoloRepository veicoloRepository) {
+                                     VeicoloRepository veicoloRepository,
+                                     PrenotazioneItemWriter prenotazioneItemWriter) {
         return new JobBuilder("importPrenotazioniJob", jobRepository)
-                .start(importPrenotazioniStep(jobRepository, transactionManager, prenotazioneMapper, userRepository, veicoloRepository, prenotazioneRepository))
+                .start(importPrenotazioniStep(jobRepository, transactionManager, prenotazioneMapper, userRepository, veicoloRepository, prenotazioneRepository, prenotazioneItemWriter))
                 .build();
     }
+
+
 
     /**
      * Step per l'importazione delle prenotazioni.
@@ -66,13 +86,14 @@ public class PrenotazioniBatchConfig {
                                        PrenotazioneMapper prenotazioneMapper,
                                        UserRepository userRepository,
                                        VeicoloRepository veicoloRepository,
-                                       PrenotazioneRepository prenotazioneRepository) {
+                                       PrenotazioneRepository prenotazioneRepository,
+                                       PrenotazioneItemWriter prenotazioneItemWriter) {
         return new StepBuilder("importPrenotazioniStep", jobRepository)
                 .<PrenotazioneDTO, Prenotazione>chunk(100, transactionManager)
-                .reader(flatFileItemReader(null))
-                .processor(importPrenotazioneProcessor(prenotazioneMapper, userRepository, veicoloRepository, prenotazioneRepository))
-                .writer(importPrenotazioneWriter(prenotazioneRepository))
-                .listener(importItemReadListener())
+                .reader(prenotazioneItemReader) // Legge i dati dal CSV
+                .processor(importPrenotazioneProcessor) // Processa i dati
+                .writer(prenotazioneItemWriter) // Scrive i dati nel database
+                .listener(importItemReadListener()) // Aggiunge un listener per il monitoraggio
                 .build();
     }
 
@@ -83,11 +104,14 @@ public class PrenotazioniBatchConfig {
     @Bean
     public Job exportPrenotazioniJob(JobRepository jobRepository,
                                      PlatformTransactionManager transactionManager,
-                                     PrenotazioneRepository prenotazioneRepository) {
+                                     Step exportPrenotazioniStep) {
+        log.info("Configurazione del job di esportazione...");
         return new JobBuilder("exportPrenotazioniJob", jobRepository)
-                .start(exportPrenotazioniStep(jobRepository, transactionManager, prenotazioneRepository))
+                .start(exportPrenotazioniStep)
                 .build();
     }
+
+
 
     /**
      * Step per l'esportazione delle prenotazioni.
@@ -95,55 +119,16 @@ public class PrenotazioniBatchConfig {
     @Bean
     public Step exportPrenotazioniStep(JobRepository jobRepository,
                                        PlatformTransactionManager transactionManager,
-                                       PrenotazioneRepository prenotazioneRepository) {
-        FlatFileItemWriter<Prenotazione> writer = prenotazioneExportConfig.prenotazioneCsvWriter();
-        writer.setResource(new FileSystemResource(OUTPUT_FILE));
+                                       RepositoryItemReader<Prenotazione> prenotazioneRepositoryReader,
+                                       ItemProcessor<Prenotazione, Prenotazione> repositoryItemProcessor,
+                                       FlatFileItemWriter<Prenotazione> prenotazioneCsvWriter) {
         return new StepBuilder("exportPrenotazioniStep", jobRepository)
                 .<Prenotazione, Prenotazione>chunk(10, transactionManager)
-                .reader(repositoryItemReader(prenotazioneRepository))
-                .writer(writer)
+                .reader(prenotazioneRepositoryReader) // Legge dal database
+                .writer(prenotazioneCsvWriter)       // Scrive sul file CSV
                 .build();
     }
 
-    /**
-     * Configurazione del Reader dal database.
-     */
-    @Bean(name = "repositoryPrenotazioniItemReader")
-    @StepScope
-    public RepositoryItemReader<Prenotazione> repositoryItemReader(PrenotazioneRepository prenotazioneRepository) {
-        RepositoryItemReader<Prenotazione> reader = new RepositoryItemReader<>();
-        reader.setRepository(prenotazioneRepository);
-        reader.setMethodName("findAllByToday");
-        reader.setPageSize(10);
-
-        // Specifica l'ordinamento esplicito per il Reader
-        Map<String, Sort.Direction> sortMap = new HashMap<>();
-        sortMap.put("prenotazioneId", Sort.Direction.ASC); // Ordina per prenotazioneId in ordine crescente
-        reader.setSort(sortMap);
-
-        log.info("RepositoryItemReader configurato per leggere le prenotazioni di oggi dal database con ordinamento.");
-        return reader;
-    }
-
-
-    /**
-     * Configurazione del Writer per l'importazione.
-     */
-    @Bean
-    public PrenotazioneItemWriter importPrenotazioneWriter(PrenotazioneRepository prenotazioneRepository) {
-        return new PrenotazioneItemWriter(prenotazioneRepository);
-    }
-
-    /**
-     * Configurazione del Processor per l'importazione.
-     */
-    @Bean
-    public ItemProcessor<PrenotazioneDTO, Prenotazione> importPrenotazioneProcessor(PrenotazioneMapper prenotazioneMapper,
-                                                                                    UserRepository userRepository,
-                                                                                    VeicoloRepository veicoloRepository,
-                                                                                    PrenotazioneRepository prenotazioneRepository) {
-        return new PrenotazioneItemProcessor(prenotazioneMapper, userRepository, veicoloRepository, prenotazioneRepository);
-    }
 
     /**
      * Listener per i log del Reader.
@@ -169,32 +154,25 @@ public class PrenotazioniBatchConfig {
     }
 
     /**
-     * Configurazione del Reader per il CSV.
+     * Metodo per leggere e loggare il contenuto del file esportato.
      */
-    @Bean
-    @StepScope
-    public FlatFileItemReader<PrenotazioneDTO> flatFileItemReader(@Value("#{jobParameters['inputFile']}") String prenotazioniFile) {
-        FlatFileItemReader<PrenotazioneDTO> reader = new FlatFileItemReader<>();
-        log.info("Inizializzazione del Reader per il file: {}", prenotazioniFile);
-        reader.setName("PRENOTAZIONI_READER");
-        reader.setLinesToSkip(1);
-        reader.setLineMapper(lineMapper());
-        reader.setStrict(false);
-        reader.setResource(new FileSystemResource(prenotazioniFile));
-        return reader;
-    }
+    private void logFileContent() {
+        File file = new File(exportFilePath);
+        log.info("Verifica del file: {}", file.getAbsolutePath());
 
-    /**
-     * Configurazione del LineMapper per il CSV.
-     */
-    @Bean
-    public DefaultLineMapper<PrenotazioneDTO> lineMapper() {
-        DefaultLineMapper<PrenotazioneDTO> lineMapper = new DefaultLineMapper<>();
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setDelimiter(",");
-        tokenizer.setNames("userId", "veicoloId", "dataPrenotazione", "dataInizio", "dataFine", "note");
-        lineMapper.setLineTokenizer(tokenizer);
-        lineMapper.setFieldSetMapper(new PrenotazioneFieldSetMapper());
-        return lineMapper;
+        if (!file.exists()) {
+            log.error("Il file {} non esiste.", file.getAbsolutePath());
+            return;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            log.info("Contenuto del file {}:", file.getAbsolutePath());
+            for (String line : lines) {
+                log.info(line);
+            }
+        } catch (IOException e) {
+            log.error("Errore durante la lettura del file {}", file.getAbsolutePath(), e);
+        }
     }
 }

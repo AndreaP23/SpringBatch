@@ -7,6 +7,7 @@ import org.springframework.batch.core.repository.support.JobRepositoryFactoryBea
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -22,6 +23,7 @@ import javax.sql.DataSource;
 @Profile("test")
 @EnableJpaRepositories(basePackages = "org.example.dao")
 @EntityScan(basePackages = "org.example.entities")
+@ComponentScan(basePackages = "org.si2001.batch_rentalcar")
 public class TestBatchConfig {
 
     @Bean
